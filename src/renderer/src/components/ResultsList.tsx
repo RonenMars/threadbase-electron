@@ -880,7 +880,7 @@ function ResultItem({ result, isSelected, onSelect, onNewChat, onContextMenu, qu
       ) : (
         <p
           className="line-clamp-2 text-sm text-neutral-300"
-          dangerouslySetInnerHTML={{ __html: highlightedPreview }}  /* eslint-disable-line react/no-danger -- content is sanitized via escapeHtml() */
+          dangerouslySetInnerHTML={{ __html: highlightedPreview }}
         />
       )}
       <div className="mt-2 text-xs text-neutral-500">{result.messageCount} messages</div>
