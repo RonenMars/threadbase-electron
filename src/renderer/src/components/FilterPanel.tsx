@@ -1,3 +1,4 @@
+import { Highlight } from 'one-more-highlight'
 import { useState, useRef, useEffect, useMemo, useCallback, Fragment, type JSX } from 'react'
 import type { SortOption, DateRangeOption, Profile } from '../../../shared/types'
 
@@ -364,20 +365,13 @@ function ProjectAutocomplete({
 
 function HighlightedPath({ path, query }: { path: string; query: string }): JSX.Element {
   const short = getShortPath(path)
-  if (!query) return <>{short}</>
-
-  const lower = short.toLowerCase()
-  const qLower = query.toLowerCase()
-  const idx = lower.indexOf(qLower)
-
-  if (idx === -1) return <>{short}</>
-
   return (
-    <>
-      {short.slice(0, idx)}
-      <span className="text-claude-orange font-medium">{short.slice(idx, idx + query.length)}</span>
-      {short.slice(idx + query.length)}
-    </>
+    <Highlight
+      text={short}
+      searchWords={query ? [query] : []}
+      highlightTag="span"
+      highlightClassName="text-claude-orange font-medium"
+    />
   )
 }
 
