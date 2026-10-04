@@ -36,6 +36,7 @@
     "@xterm/xterm": "^6.0.0",
     "flexsearch": "^0.8.212",
     "node-pty": "^1.1.0",
+    "one-more-highlight": "^1.6.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "uuid": "^13.0.2"

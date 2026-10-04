@@ -1,4 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
+import { Highlight } from 'one-more-highlight'
 import { useMemo, useRef, useState, useCallback, type JSX } from 'react'
 import SpeedSearch from './SpeedSearch'
 import type { ClaudeProfile, DisplayMode, GitInfo, Profile, SearchResult } from '../../../shared/types'
@@ -766,19 +767,7 @@ interface ResultItemProps {
 }
 
 function ResultItem({ result, isSelected, onSelect, onNewChat, onContextMenu, query, gitInfo, activeCwd, activeChatSessionId, isClaudeTyping, activeChatProfile, profileBadge, showProviderBadge, historyMessageDisplay }: ResultItemProps): JSX.Element {
-  // Note: dangerouslySetInnerHTML is safe here — content passes through
-  // escapeHtml() which sanitizes all HTML entities before highlightText()
-  // wraps matched terms in <span> tags using the escaped content.
-  const highlightedPreview = useMemo(() => {
-    if (!query) return escapeHtml(result.preview)
-    return highlightText(result.preview, query)
-  }, [result.preview, query])
-
-  const highlightedSessionId = useMemo(() => {
-    const short = result.sessionId?.slice(0, 8) || ''
-    if (!query || !short) return escapeHtml(short)
-    return highlightText(short, query)
-  }, [result.sessionId, query])
+  const shortSessionId = result.sessionId?.slice(0, 8) || ''
 
   const formattedDate = useMemo(() => {
     return formatDate(result.timestamp)
@@ -866,9 +855,12 @@ function ResultItem({ result, isSelected, onSelect, onNewChat, onContextMenu, qu
         <p className="mb-1 truncate text-xs text-neutral-400">{result.sessionName}</p>
       )}
       {result.sessionId && (
-        <p
+        <Highlight
+          as="p"
           className="mb-1 truncate font-mono text-[10px] text-neutral-500"
-          dangerouslySetInnerHTML={{ __html: highlightedSessionId }}
+          text={shortSessionId}
+          searchWords={query ? [query] : []}
+          highlightClassName="highlight"
         />
       )}
       {preferredMsg ? (
@@ -878,9 +870,12 @@ function ResultItem({ result, isSelected, onSelect, onNewChat, onContextMenu, qu
           {preferredMsg.text}
         </p>
       ) : (
-        <p
+        <Highlight
+          as="p"
           className="line-clamp-2 text-sm text-neutral-300"
-          dangerouslySetInnerHTML={{ __html: highlightedPreview }}
+          text={result.preview}
+          searchWords={query ? [query] : []}
+          highlightClassName="highlight"
         />
       )}
       <div className="mt-2 text-xs text-neutral-500">{result.messageCount} messages</div>
@@ -952,31 +947,6 @@ function GitBadge({ info }: { info: GitInfo | undefined }): JSX.Element | null {
       </svg>
     </span>
   )
-}
-
-function highlightText(text: string, query: string): string {
-  if (!query) return escapeHtml(text)
-
-  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const regex = new RegExp(`(${escapedQuery})`, 'gi')
-  const parts = text.split(regex)
-
-  return parts
-    .map((part) =>
-      part.toLowerCase() === query.toLowerCase()
-        ? `<span class="highlight">${escapeHtml(part)}</span>`
-        : escapeHtml(part)
-    )
-    .join('')
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
 }
 
 function formatDate(timestamp: string): string {
